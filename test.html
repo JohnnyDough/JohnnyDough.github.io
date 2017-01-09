@@ -5,7 +5,7 @@
 <body>
 	<script>
 	function k() {
-		document.getElementById("h").innerHTML = "<button tabindex='0' onclick='k()'>first</button><button tabindex='0' onclick='k()'>second</button><span id='focustarget' tabindex='-1' style='outline:none'></span><button tabindex='0' onclick='k()'>third</button>";
+		document.getElementById("h").innerHTML = "<button tabindex='0' onclick='k()'>first</button><button tabindex='0' onclick='k()'>second</button><span id='focustarget' tabindex='-1' style='outline:none'>Apparently I need NVDA to read text for a while to get the effect to trigger, so this is just filler text.</span><button tabindex='0' onclick='k()'>third</button>";
 		var focustarget = document.getElementById('focustarget');
 		focustarget.focus();
     }
