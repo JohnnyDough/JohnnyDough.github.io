@@ -197,6 +197,19 @@ Should empty or disabled links be marked with the <a> tag, or is <span> ok? They
 	<p class="screenreader" role="contentinfo">Keyboard commands. Press keys to choose links in order. The 8 keys in order are q, w, e, r, and a, s, d, f. There is also a neutral link, spacebar, which is usually a cancel or back function. Keys can be rebound. Tab focus starts on the first link without a keybind. Enter to select.</p>
 	<div class="emscripten" id="status" style="text-align:center">Downloading...</div>
 
+The Module.i() being called is a big blob in a.js that essentially calls the following script:
+
+var new_history = document.createElement('section');
+new_history.innerHTML = "Insert history here";
+document.getElementById('H').appendChild(new_history);
+var message = document.getElementById('m');
+message.innerHTML = "Insert new message here, containing a focustarget element somewhere in the middle";
+message.scrollIntoView(false);
+var focustarget = document.getElementById('focustarget');
+focustarget.focus();
+
+
+
 	<!-- [options] can't be in the tab index after the game starts, and it shouldn't have a fixed keybind. thus, its tabindex is only valid at the very beginning. -->
 	<!-- keybound links should still stay in tab ordering, or that will fuck with screen readers which have the "skip to next link" function -->
 	<div id="initialoptions" style="text-align:center">
