@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en-us">
+<head>
+	<meta charset="utf-8">
+	<title>ctojs</title>
+	<style>
+	p {
+		margin: 0.5em;
+	}
+	section {
+		margin: 1.0em;
+	}
+
+	a {
+		cursor: pointer;
+		font-weight: bold;
+	}
+	a:hover,
+	a.hover {
+		text-decoration: underline;
+	}
+	
+	/*  disabled link */
+	.ld {
+		text-decoration: line-through;
+		cursor: default;
+	}
+	.ld:hover {
+		text-decoration: none;
+	}
+	
+	/*  scrollback links */
+	.s {
+		cursor: default;
+	}
+	.s:hover {
+		text-decoration: none;
+	}
+	
+
+	/* unclicked disabled links in scrollback */
+	.ud {
+		text-decoration: line-through;
+	}
+	
+	/* clicked links in scrollback */
+	.ca::after {
+		content: "]";
+	}
+	.ca::before {
+		content: "[";
+	}
+	.screenreader {
+		height: 1px;
+		width: 1px;
+		position: absolute;
+		overflow: hidden;
+		top: -10px;
+	}
+	</style>
+	<script type='text/javascript'>
+	function changestylesheet(selectorText, style, value) {
+		/* from stackoverflow. selectorText: e.g. '#myId', '.myClass', 'thead td'
+		 * style: e.g. 'fontSize'
+		 * value: the new value. if a string, such as when style = "content", you might need nested quotes, like "\" text \""
+		 */
+		for (var i = 0; i < document.styleSheets.length; ++i) {
+			rules = document.styleSheets[i].cssRules;
+			for (var n in rules) {
+				if (rules[n].selectorText == selectorText) {
+					rules[n].style[style] = value;
+					return;
+				}
+			}
+		}
+		alert('Stylesheet not found!');
+	}
+	var rebindingkey = false;
+	var rebindingkeynumber = 0;
+
+	function changekeybind(number) {
+		document.getElementById('c' + rebindingkeynumber).style['font-weight'] = 'bold'; //in case you click on numbers in succession
+		if (rebindingkeynumber == number)
+			rebindingkey = !rebindingkey; //in case you click the same number twice, to disable the rebinding functionality
+		rebindingkeynumber = number;
+		if (rebindingkey)
+			document.getElementById('c' + rebindingkeynumber).style['font-weight'] = 'normal';
+	}
+	//http://stackoverflow.com/a/5829387/2024042 doesn't work for -, ', `
+	//the array technique of onkeydown doesn't work cross-browser, because different browsers have different codes. for example, ; and = lead to different codes on FF and Chrome
+	var keycoderaw = [113, 119, 101, 114, 97, 115, 100, 102, 32];
+	document.onkeypress = function(evt) {
+		e = evt || window.event;
+		if (e.repeat) return;
+		if (rebindingkey)
+		{
+			//alert("You pressed " + String.fromCharCode(e.which) + " which is " + e.which);
+			if (e.which == 0)
+			{
+				//http://stackoverflow.com/a/23377822/2024042 for keydown instead of keypress, which would support those funny chararacters, but with extra work. you'd need a 256-size array listing out the various keys
+				//https://github.com/wesbos/keycodes/blob/gh-pages/scripts.js
+				alert("You pressed an unsupported key. Only actual glyphs are supported, like letters, numbers, and punctuation. That excludes things like arrow keys and Ctrl. This is because of javascript problems, since the alternative scheme, which supports those keys, has different behaviors in different browsers. Also, inserting long words in the text, like [left], is distracting.");
+				return;
+			}
+			if (e.which == 13)
+			{
+				alert("Don't use Enter as a keybind please, you need Enter to select links outside of the first eight with your keyboard. Plus, Enter causes trouble with javascript's fromCharCode.");
+				return;
+			}
+			rebindingkey = false;
+			//for (var i in keycoderaw) if (keycoderaw[i] == e.which) return; //this is annoying for intermediate state changes
+			keycoderaw[rebindingkeynumber] = e.which;
+			changestylesheet('.l' + rebindingkeynumber + '::after', 'content', '\'[' + String.fromCharCode(e.which) + ']\'');
+			document.getElementById('c' + rebindingkeynumber).style['font-weight'] = 'bold';
+			return;
+		}
+		switch (e.which) {
+			case keycoderaw[0]:
+				Module.i(0);
+				break;
+			case keycoderaw[1]:
+				Module.i(1);
+				break;
+			case keycoderaw[2]:
+				Module.i(2);
+				break;
+			case keycoderaw[3]:
+				Module.i(3);
+				break;
+			case keycoderaw[4]:
+				Module.i(4);
+				break;
+			case keycoderaw[5]:
+				Module.i(5);
+				break;
+			case keycoderaw[6]:
+				Module.i(6);
+				break;
+			case keycoderaw[7]:
+				Module.i(7);
+				break;
+			case keycoderaw[8]:
+				Module.i(-1);
+				break;
+			case 13: //13 = enter key. onclick() isn't triggered by enter key, so this triggers it forcefully
+				if (typeof document.activeElement.onclick == 'function') document.activeElement.onclick();
+				break;
+			default:
+				break;
+		}
+	}
+	var style = document.createElement('style');
+	document.head.appendChild(style);
+	var stylesheet = style.sheet;
+
+	function newcss(selector, property, value)
+	{
+		try {stylesheet.insertRule(selector + ' {' + property + ':' + value + '}', stylesheet.cssRules.length);}
+		catch (err) {console.log("Couldn't add style");}
+	}
+	for (var n in keycoderaw)
+		newcss(".l" + n + "::after", "content", "\"[" + String.fromCharCode(keycoderaw[n]) + "]\"");
+
+	function remove_options_focus()
+	{
+		document.getElementById("initialoptions").style.opacity = 0.5;
+		for (var n in keycoderaw)
+		{
+			var option = document.getElementById("c" + n);
+			option.setAttribute('tabindex', '-1');
+			//option.removeAttribute('tabindex');
+			//option.tabindex = -1; //this doesn't work
+		}
+	}
+	</script>
+</head>
+
+<body>
+<!-- Accessibility:
+"Some people cannot use a mouse, including many older users with limited fine motor control. An accessible website does not rely on the mouse; it provides all functionality via a keyboard. Then people with disabilities can use assistive technologies that mimic the keyboard, such as speech input."
+Use case: half-blind person.
+	http://www.karlgroves.com/2013/09/05/the-6-simplest-web-accessibility-tests-anyone-can-do/
+	"Colors on the site are essentially removed entirely. All background is black and all foreground text is a significantly brighter color such as white or yellow (users can customize this)."
+	that means that we can't rely on colors to distinguish things.
+	"30% of respondents state they used High Contrast Modes...there are far more people with low-vision than those who are totally blind"
+Use case: blind person. Can he hear where the links are and learn how to trigger them? Can he rebind the keys?
+	the CSS places the link description as [q], which isn't selectable. is it read? I hope not, that would be repetitive. but he needs to learn the initial behavior of button ordering
+	I hope role="button" fixes things. see https://www.w3.org/TR/wai-aria-practices-1.1/examples/link/link.html
+	note that the "title" element is not read by screenreaders: https://silktide.com/things-i-learned-by-pretending-to-be-blind-for-a-week/
+	so even though tabbing skips the buttons with keybinds, they're placed at the end anyway.
+Use case: mouseless person. He should still be able to rebind keys, especially if his layout is nonstandard.
+	that means that the option keys are tabbable for accessibility
+Use case: keyboardless person. Everything should be clickable.
+So: does the engine make clear what the links are?
+Should empty or disabled links be marked with the <a> tag, or is <span> ok? They should still be links. because the text might read "Kill him" in which case it's important to know it's an option, instead of something that happened
+-->
+	<p class="screenreader" role="contentinfo">Keyboard commands. Press keys to choose links in order. The 8 keys in order are q, w, e, r, and a, s, d, f. There is also a neutral link, spacebar, which is usually a cancel or back function. Keys can be rebound. Tab focus starts on the first link without a keybind. Enter to select.</p>
+	<div class="emscripten" id="status" style="text-align:center">Downloading...</div>
+
+	<!-- [options] can't be in the tab index after the game starts, and it shouldn't have a fixed keybind. thus, its tabindex is only valid at the very beginning. -->
+	<!-- keybound links should still stay in tab ordering, or that will fuck with screen readers which have the "skip to next link" function -->
+	<div id="initialoptions" style="text-align:center">
+		rebind keys: <a id="c0" role="button" class="l0" tabindex="0" onclick="changekeybind(0);"><span class="screenreader">1 is</span></a>
+		<a id="c1" role="button" class="l1" tabindex="0" onclick="changekeybind(1);"><span class="screenreader">2 is</span></a>
+		<a id="c2" role="button" class="l2" tabindex="0" onclick="changekeybind(2);"><span class="screenreader">3 is</span></a>
+		<a id="c3" role="button" class="l3" tabindex="0" onclick="changekeybind(3);"><span class="screenreader">4 is</span></a>
+		<a id="c4" role="button" class="l4" tabindex="0" onclick="changekeybind(4);"><span class="screenreader">5 is</span></a>
+		<a id="c5" role="button" class="l5" tabindex="0" onclick="changekeybind(5);"><span class="screenreader">6 is</span></a>
+		<a id="c6" role="button" class="l6" tabindex="0" onclick="changekeybind(6);"><span class="screenreader">7 is</span></a>
+		<a id="c7" role="button" class="l7" tabindex="0" onclick="changekeybind(7);"><span class="screenreader">8 is</span></a>
+		<a id="c8" role="button" class="l8" tabindex="0" onclick="changekeybind(8);"><span class="screenreader">neutral is</span></a>
+	</div>
+
+	<script>
+	function k() {
+		var new_history = document.createElement('div');
+		new_history.innerHTML = "walala!";
+		document.getElementById('H').appendChild(new_history);
+    	document.getElementById("m").innerHTML = "<a tabindex='2' onclick='k()'>first</a><a tabindex='1' onclick='k()'>second</a>";
+    }
+    </script>
+	<div id='H' style="opacity: 0.5; white-space:pre-wrap;"></div>
+	<!--70vh keeps the text reasonably close to the top. it preserves some of the previous scrollback to maintain context, since you have a large screen, and we don't want to waste that screen with empty space at the bottom-->
+	<!-- role="main" is for ARIA accessibility. tabindex="-1" lets us focus() it to re-read it when it changes. -->
+	<!-- from testing, role="status" works far better than tabindex and focus(). not only does it not re-read the title over and over, but it actually works reliably, whereas focus() is incredibly shaky, hardly ever working. plus, focus() requires outline:none; to get rid of the dumb dotted box that appears constantly after the first time you press tab -->
+	<div id='m' role="main status" style="height:75vh; white-space:pre-wrap;" aria-live="polite"></div>
+
+	<script type='text/javascript'>
+	var statusElement = document.getElementById('status');
+	var Module = {
+		print: function(text) {
+			if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
+			console.log(text);
+		},
+		printErr: function(text) {
+			if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
+			console.error(text);
+		},
+		setStatus: function(text) {
+			statusElement.textContent = text;
+		},
+		totalDependencies: 0,
+		monitorRunDependencies: function(left) {
+			this.totalDependencies = Math.max(this.totalDependencies, left);
+			Module.setStatus(left ? 'Preparing... (' + (this.totalDependencies - left) + '/' + this.totalDependencies + ')' : 'All downloads complete.');
+		}
+	};
+	Module.setStatus('Downloading...');
+	window.onerror = function() {
+		Module.setStatus('Exception thrown, see JavaScript console');
+		Module.setStatus = function(text) {
+			if (text) Module.printErr('[post-exception status] ' + text);
+		};
+	};
+	</script>
+	<script async type="text/javascript" src="a.js"></script>
+</body>
+
+</html>
