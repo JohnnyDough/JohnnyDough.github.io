@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+<body>
+	<script>
+	function k() {
+		document.getElementById("h").innerHTML = "<button tabindex='0' onclick='k()'>first</button><button tabindex='0' onclick='k()'>second</button><span id='focustarget' tabindex='-1' style='outline:none'></span><button tabindex='0' onclick='k()'>third</button>";
+		var focustarget = document.getElementById('focustarget');
+		focustarget.focus();
+    }
+    </script>
+<div id="h" role="main status" aria-live="polite"><button onclick='k()'>click me</button></div>
+</body>
+</html>
